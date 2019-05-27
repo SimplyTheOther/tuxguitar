@@ -1,0 +1,1 @@
+mvn clean package -Dnative-modules=true -P platform-macosx-x86_64 

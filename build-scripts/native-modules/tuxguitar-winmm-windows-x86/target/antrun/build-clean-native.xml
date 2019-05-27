@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="maven-antrun-" default="clean-native"  >
+<target name="clean-native">
+  <exec failonerror="true" dir="../../..//TuxGuitar-winmm/jni/" executable="make">
+    <arg value="clean"/>
+    <env value="del" key="RM"/>
+    <env value="tuxguitar-winmm-jni" key="LIBRARY_NAME"/>
+    <env value="" key="LIBRARY_PREFIX"/>
+    <env value=".dll" key="LIBRARY_SUFFIX"/>
+  </exec>
+</target>
+</project>

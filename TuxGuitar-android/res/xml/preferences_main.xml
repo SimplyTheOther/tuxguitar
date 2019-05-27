@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:key="midi.settings"
+        android:title="@string/preferences_midi_category_title">
+
+        <ListPreference
+            android:key="midi.output.port"
+            android:title="@string/preferences_midi_output_port_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="storage.settings"
+        android:title="@string/preferences_storage_category_title">
+
+        <CheckBoxPreference
+            android:key="storage.use.saf.provider"
+            android:title="@string/preferences_storage_storage_use_saf_provider_title"
+            android:summary="@string/preferences_storage_storage_use_saf_provider_summary"
+            android:enabled="@bool/storage_saf_available" />
+    </PreferenceCategory>
+</PreferenceScreen>
