@@ -61,7 +61,7 @@ public class TGNoteImpl extends TGNote {
 		float scale = layout.getScale();
 		float tsY = (fromY + ts.getPosition(TGTrackSpacing.POSITION_EFFECTS));
 		float bsY = (tsY + (ts.getSize(TGTrackSpacing.POSITION_EFFECTS) - bs.getSize( )));
-		
+
 		layout.setOfflineEffectStyle(painter);
 		if(effect.isAccentuatedNote()){
 			float x = fromX + getPosX() + spacing;
@@ -792,7 +792,7 @@ public class TGNoteImpl extends TGNote {
 		painter.moveTo ( x + width, y + (4.0f * scale ) );
 		painter.closePath();
 	}
-	
+
 	private void paintAccentuated(TGLayout layout, UIPainter painter,float fromX,float fromY){
 		float scale = layout.getScale();
 		float x = fromX;

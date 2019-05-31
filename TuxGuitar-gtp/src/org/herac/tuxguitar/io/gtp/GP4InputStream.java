@@ -19,6 +19,7 @@ import org.herac.tuxguitar.song.models.TGLyric;
 import org.herac.tuxguitar.song.models.TGMarker;
 import org.herac.tuxguitar.song.models.TGMeasure;
 import org.herac.tuxguitar.song.models.TGMeasureHeader;
+import org.herac.tuxguitar.song.models.TGMixerChange;
 import org.herac.tuxguitar.song.models.TGNote;
 import org.herac.tuxguitar.song.models.TGNoteEffect;
 import org.herac.tuxguitar.song.models.TGSong;
@@ -38,7 +39,7 @@ import org.herac.tuxguitar.song.models.effects.TGEffectTremoloPicking;
 import org.herac.tuxguitar.song.models.effects.TGEffectTrill;
 
 public class GP4InputStream extends GTPInputStream {
-	
+
 	public static final TGFileFormat FILE_FORMAT = new TGFileFormat("Guitar Pro 4", "audio/x-gtp", new String[]{"gp4"});
 	
 	public static final GTPFileFormatVersion[] SUPPORTED_VERSIONS = new GTPFileFormatVersion[] {
@@ -198,7 +199,7 @@ public class GP4InputStream extends GTPInputStream {
 			readBeatEffects(beat,effect);
 		}
 		if ((flags & 0x10) != 0) {
-			readMixChange(tempo);
+			readMixChange(beat, tempo);
 		}
 		int stringFlags = readUnsignedByte();
 		for (int i = 6; i >= 0; i--) {
@@ -658,38 +659,52 @@ public class GP4InputStream extends GTPInputStream {
 		}
 	}
 	
-	private void readMixChange(TGTempo tempo) throws IOException {
-		readByte();
-		int volume = readByte();
-		int pan = readByte();
-		int chorus = readByte();
-		int reverb = readByte();
-		int phaser = readByte();
-		int tremolo = readByte();
+	private void readMixChange(TGBeat beat, TGTempo tempo) throws IOException {
+		TGMixerChange mixer = getFactory().newMixerChange();
+
+		byte instrument = readByte();
+		byte volume = readByte();
+		byte pan = readByte();
+		byte chorus = readByte();
+		byte reverb = readByte();
+		byte phaser = readByte();
+		byte tremolo = readByte();
 		int tempoValue = readInt();
+		if(instrument >= 0) {
+			mixer.setProgram((short) instrument);
+		}
 		if(volume >= 0){
+			mixer.setVolume(toChannelShort(volume));
 			readByte();
 		}
 		if(pan >= 0){
+			mixer.setBalance(toChannelShort(pan));
 			readByte();
 		}
 		if(chorus >= 0){
+			mixer.setChorus(toChannelShort(chorus));
 			readByte();
 		}
 		if(reverb >= 0){
+			mixer.setReverb(toChannelShort(reverb));
 			readByte();
 		}
 		if(phaser >= 0){
+			mixer.setPhaser(toChannelShort(phaser));
 			readByte();
 		}
 		if(tremolo >= 0){
-			readByte();
-		}
-		if(tempoValue >= 0){
-			tempo.setValue(tempoValue);
+			mixer.setTremolo(toChannelShort(tremolo));
 			readByte();
 		}
 		readByte();
+
+		if (mixer.getProgram() != null
+				|| mixer.getVolume() != null || mixer.getBalance() != null
+				|| mixer.getReverb() != null || mixer.getChorus() != null
+				|| mixer.getTremolo() != null) {
+			beat.setMixerChange(mixer);
+		}
 	}
 	
 	private int readKeySignature() throws IOException {

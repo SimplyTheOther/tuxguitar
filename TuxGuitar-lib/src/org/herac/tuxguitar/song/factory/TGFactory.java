@@ -11,6 +11,7 @@ import org.herac.tuxguitar.song.models.TGLyric;
 import org.herac.tuxguitar.song.models.TGMarker;
 import org.herac.tuxguitar.song.models.TGMeasure;
 import org.herac.tuxguitar.song.models.TGMeasureHeader;
+import org.herac.tuxguitar.song.models.TGMixerChange;
 import org.herac.tuxguitar.song.models.TGNote;
 import org.herac.tuxguitar.song.models.TGNoteEffect;
 import org.herac.tuxguitar.song.models.TGScale;
@@ -126,7 +127,13 @@ public class TGFactory {
 			//TGBeat Implementation
 		};
 	}
-	
+
+	public TGMixerChange newMixerChange() {
+	    return new TGMixerChange() {
+
+		};
+	}
+
 	public TGVoice newVoice(int index){
 		return new TGVoice(this, index){
 			//TGVoice Implementation

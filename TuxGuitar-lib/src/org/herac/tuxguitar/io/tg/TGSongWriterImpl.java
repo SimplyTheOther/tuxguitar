@@ -19,6 +19,7 @@ import org.herac.tuxguitar.song.models.TGLyric;
 import org.herac.tuxguitar.song.models.TGMarker;
 import org.herac.tuxguitar.song.models.TGMeasure;
 import org.herac.tuxguitar.song.models.TGMeasureHeader;
+import org.herac.tuxguitar.song.models.TGMixerChange;
 import org.herac.tuxguitar.song.models.TGNote;
 import org.herac.tuxguitar.song.models.TGNoteEffect;
 import org.herac.tuxguitar.song.models.TGSong;
@@ -370,6 +371,10 @@ public class TGSongWriterImpl extends TGStream implements TGSongWriter {
 		if(beat.getText() != null){
 			header |= BEAT_HAS_TEXT;
 		}
+
+		if (beat.hasMixerChange()) {
+			header |= BEAT_HAS_MIXER_CHANGE;
+		}
 		
 		// escribo la cabecera
 		writeHeader(header);
@@ -390,6 +395,11 @@ public class TGSongWriterImpl extends TGStream implements TGSongWriter {
 		//escribo el texto
 		if(((header & BEAT_HAS_TEXT) != 0)){
 			writeText(beat.getText());
+		}
+
+		//escribo el texto
+		if(((header & BEAT_HAS_MIXER_CHANGE) != 0)){
+			writeMixerChange(beat.getMixerChange());
 		}
 	}
 	
@@ -479,7 +489,22 @@ public class TGSongWriterImpl extends TGStream implements TGSongWriter {
 		//escribo el texto
 		writeUnsignedByteString(text.getValue());
 	}
-	
+
+	private void writeMixerByte(Short b) throws IOException {
+		writeByte(b == null ? -1 : b);
+	}
+
+	private void writeMixerChange(TGMixerChange mixer) throws IOException {
+		writeMixerByte(mixer.getProgram());
+		writeMixerByte(mixer.getBank());
+		writeMixerByte(mixer.getVolume());
+		writeMixerByte(mixer.getBalance());
+		writeMixerByte(mixer.getReverb());
+		writeMixerByte(mixer.getChorus());
+		writeMixerByte(mixer.getTremolo());
+		writeMixerByte(mixer.getPhaser());
+	}
+
 	private void writeInstrumentString(TGString string) throws IOException{
 		//escribo el valor
 		writeByte(string.getValue());

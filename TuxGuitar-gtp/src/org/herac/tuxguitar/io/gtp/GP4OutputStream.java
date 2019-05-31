@@ -23,6 +23,7 @@ import org.herac.tuxguitar.song.models.TGDuration;
 import org.herac.tuxguitar.song.models.TGMarker;
 import org.herac.tuxguitar.song.models.TGMeasure;
 import org.herac.tuxguitar.song.models.TGMeasureHeader;
+import org.herac.tuxguitar.song.models.TGMixerChange;
 import org.herac.tuxguitar.song.models.TGNote;
 import org.herac.tuxguitar.song.models.TGNoteEffect;
 import org.herac.tuxguitar.song.models.TGSong;
@@ -303,7 +304,7 @@ public class GP4OutputStream extends GTPOutputStream{
 			writeBeatEffects(beat,effect);
 		}
 		if ((flags & 0x10) != 0) {
-			writeMixChange(measure.getTempo());
+			writeMixChange(beat, measure.getTempo());
 		}
 		int stringFlags = 0;
 		if (!voice.isRestVoice()) {
@@ -587,10 +588,15 @@ public class GP4OutputStream extends GTPOutputStream{
 		writeUnsignedByte(grace.getDuration());
 	}
 	
-	private void writeMixChange(TGTempo tempo) throws IOException {
-		for (int i = 0; i < 7; i++) {
-			writeByte((byte) -1);
-		}
+	private void writeMixChange(TGBeat beat, TGTempo tempo) throws IOException {
+		TGMixerChange mixer = beat.getMixerChange();
+		writeByte((byte) (mixer != null && mixer.getProgram() != null ? (short) mixer.getProgram() : 0xff));
+		writeByte((byte) (mixer != null && mixer.getVolume() != null ? toChannelByte(mixer.getVolume()) : 0xff));
+		writeByte((byte) (mixer != null && mixer.getBalance() != null ? toChannelByte(mixer.getBalance()) : 0xff));
+		writeByte((byte) (mixer != null && mixer.getChorus() != null ? toChannelByte(mixer.getChorus()) : 0xff));
+		writeByte((byte) (mixer != null && mixer.getReverb() != null ? toChannelByte(mixer.getReverb()) : 0xff));
+		writeByte((byte) (mixer != null && mixer.getPhaser() != null ? toChannelByte(mixer.getPhaser()) : 0xff));
+		writeByte((byte) (mixer != null && mixer.getTremolo() != null ? toChannelByte(mixer.getTremolo()) : 0xff));
 		writeInt(tempo.getValue());
 		writeByte((byte) 0);
 		writeUnsignedByte(1);
