@@ -8,3 +8,4 @@
 */.svn
 */bin/*
 *.class
+*/*/target/*
