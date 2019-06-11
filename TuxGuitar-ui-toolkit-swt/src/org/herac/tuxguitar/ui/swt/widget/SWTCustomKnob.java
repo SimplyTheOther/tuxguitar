@@ -33,8 +33,7 @@ public class SWTCustomKnob extends SWTControl<Composite> implements UIKnob, UIMo
 	private int value;
 	private float lastDragY;
 	private UISelectionListenerManager selectionHandler;
-	private boolean enabled;
-
+	
 	public SWTCustomKnob(SWTContainer<? extends Composite> parent) {
 		super(new Composite(parent.getControl(), SWT.DOUBLE_BUFFERED), parent);
 		
@@ -142,8 +141,6 @@ public class SWTCustomKnob extends SWTControl<Composite> implements UIKnob, UIMo
 		float valueY = (y + Math.round((ovalSize / 3f) * Math.sin(Math.PI * percent)));
 		
 		UIPainter uiPainter = new SWTPainter(e.gc);
-		uiPainter.setAlpha(this.isEnabled() ? 255 : 48);
-
 		uiPainter.initPath(UIPainter.PATH_DRAW);
 		uiPainter.moveTo(x, y);
 		uiPainter.addCircle(y, y, ovalSize);
@@ -154,28 +151,12 @@ public class SWTCustomKnob extends SWTControl<Composite> implements UIKnob, UIMo
 		uiPainter.addCircle(valueX, valueY, valueSize);
 		uiPainter.closePath();
 	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-		super.setEnabled(enabled);
-		this.redraw();
-	}
-
-	public boolean isEnabled() {
-		return this.enabled;
-	}
 	
 	public void onMouseWheel(UIMouseWheelEvent event) {
-		if (!this.isEnabled()) {
-			return;
-		}
 		this.setValue(Math.round(Math.max(Math.min(this.value + (Math.signum(event.getValue()) * this.increment), this.maximum), this.minimum)));
 	}
 	
 	public void onMouseDrag(UIMouseEvent event) {
-		if (!this.isEnabled()) {
-			return;
-		}
 		float dragY = event.getPosition().getY();
 		float move = (this.lastDragY - dragY);
 		this.lastDragY = dragY;

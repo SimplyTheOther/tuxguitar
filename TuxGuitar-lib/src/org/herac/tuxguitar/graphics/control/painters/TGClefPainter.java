@@ -348,6 +348,17 @@ public class TGClefPainter {
 		new TGCubicTo(0.5896894f, -0.44392997f, 0.59568065f, -0.44992122f, 0.6016719f, -0.45291623f)
 	);
 	
+	private static final TGPaintCommand NEUTRAL_MODEL = new TGPaintModel(
+		new TGMoveTo(0.0f, 1.0f),
+		new TGLineTo(0.0f, 3.0f),
+		new TGLineTo(0.5f, 3.0f),
+		new TGLineTo(0.5f, 1.0f),
+		new TGMoveTo(1.0f, 1.0f),
+		new TGLineTo(1.0f, 3.0f),
+		new TGLineTo(1.5f, 3.0f),
+		new TGLineTo(1.5f, 1.0f)
+	);
+	
 	public static void paintTreble(UIPainter painter, float x, float y,float scale){
 		TREBLE_MODEL.paint(painter, x, y, scale);
 	}
@@ -365,38 +376,6 @@ public class TGClefPainter {
 	}
 	
 	public static void paintNeutral(UIPainter painter, float x, float y, float scale) {
-		//TODO redo to match the "model" layout
-		
-		// 2 small bars
-		painter.moveTo((x + (0.0f * scale)),(y + (1.0f * scale)));
-		painter.lineTo((x + (0.0f * scale)),(y + (3.0f * scale)));
-		painter.lineTo((x + (0.5f * scale)),(y + (3.0f * scale)));
-		painter.lineTo((x + (0.5f * scale)),(y + (1.0f * scale)));
-		painter.moveTo((x + (1.0f * scale)),(y + (1.0f * scale)));
-		painter.lineTo((x + (1.0f * scale)),(y + (3.0f * scale)));
-		painter.lineTo((x + (1.5f * scale)),(y + (3.0f * scale)));
-		painter.lineTo((x + (1.5f * scale)),(y + (1.0f * scale)));
-		
-		// rectangle
-		// left
-		painter.moveTo((x + (3.0f * scale)),(y + (0.4f * scale)));
-		painter.lineTo((x + (3.0f * scale)),(y + (3.7f * scale)));
-		painter.lineTo((x + (3.2f * scale)),(y + (3.7f * scale)));
-		painter.lineTo((x + (3.2f * scale)),(y + (0.4f * scale)));
-		// top
-		painter.moveTo((x + (3.2f * scale)),(y + (0.7f * scale)));
-		painter.lineTo((x + (4.0f * scale)),(y + (0.7f * scale)));
-		painter.lineTo((x + (4.0f * scale)),(y + (0.4f * scale)));
-		painter.lineTo((x + (3.2f * scale)),(y + (0.4f * scale)));
-				// right
-		painter.moveTo((x + (4.0f * scale)),(y + (0.4f * scale)));
-		painter.lineTo((x + (4.0f * scale)),(y + (3.7f * scale)));
-		painter.lineTo((x + (4.2f * scale)),(y + (3.7f * scale)));
-		painter.lineTo((x + (4.2f * scale)),(y + (0.4f * scale)));
-		// bottom
-		painter.moveTo((x + (3.2f * scale)),(y + (3.7f * scale)));
-		painter.lineTo((x + (4.0f * scale)),(y + (3.7f * scale)));
-		painter.lineTo((x + (4.0f * scale)),(y + (3.4f * scale)));
-		painter.lineTo((x + (3.2f * scale)),(y + (3.4f * scale)));
+		NEUTRAL_MODEL.paint(painter, x, y, scale);
 	}
 }

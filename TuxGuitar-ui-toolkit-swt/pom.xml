@@ -36,9 +36,6 @@
 			<groupId>${org.eclipse.swt.groupId}</groupId>
 			<artifactId>${org.eclipse.swt.artifactId}</artifactId>
 			<scope>provided</scope>
-			<!-- start TO edit -->
-			<!-- <version>${org.eclipse.swt.version}</version>-->
-			<!-- end TO edit -->
 		</dependency>
 	</dependencies>
 </project>

@@ -1,7 +1,6 @@
 package org.herac.tuxguitar.graphics.control;
 
 import java.util.Iterator;
-import java.util.List;
 
 import org.herac.tuxguitar.graphics.control.painters.TGKeySignaturePainter;
 import org.herac.tuxguitar.graphics.control.painters.TGNotePainter;
@@ -30,13 +29,10 @@ public class TGNoteImpl extends TGNote {
 		super(factory);
 	}
 	
-	public void update(TGLayout layout) {		
-		//if(!getMeasureImpl().getTrack().IsPercussionTrack()) {
-		//replacement
+	public void update(TGLayout layout) {
 		if(!layout.getSongManager().isPercussionChannel(getMeasureImpl().getTrack().getSong(), getMeasureImpl().getTrack().getChannelId())) {
 			this.accidental = getMeasureImpl().getNoteAccidental( getRealValue() );
 		}
-		//accidentals only in non-percussion tracks	
 		
 		this.tabPosY = ( (getString() * layout.getStringSpacing()) - layout.getStringSpacing() );
 		this.scorePosY = getVoiceImpl().getBeatGroup().getY1(layout,this,getMeasureImpl().getKeySignature(),getMeasureImpl().getClef());
@@ -61,7 +57,7 @@ public class TGNoteImpl extends TGNote {
 		float scale = layout.getScale();
 		float tsY = (fromY + ts.getPosition(TGTrackSpacing.POSITION_EFFECTS));
 		float bsY = (tsY + (ts.getSize(TGTrackSpacing.POSITION_EFFECTS) - bs.getSize( )));
-
+		
 		layout.setOfflineEffectStyle(painter);
 		if(effect.isAccentuatedNote()){
 			float x = fromX + getPosX() + spacing;
@@ -329,130 +325,17 @@ public class TGNoteImpl extends TGNote {
 				painter.closePath();
 			}
 			//----------fin sostenido--------------------------------------
-			if(getEffect().isHarmonic()){
+			if(getEffect().isHarmonic()) {
 				boolean fill = (getVoice().getDuration().getValue() >= TGDuration.QUARTER);
 				painter.setLineWidth(layout.getLineWidth(1));
 				painter.initPath((fill ? (UIPainter.PATH_FILL | UIPainter.PATH_DRAW) : UIPainter.PATH_DRAW));
 				TGNotePainter.paintHarmonic(painter, x, y1 + (1f * (scale / 10f)), (layout.getScoreLineSpacing() - ((scale / 10f) * 2f)));
 				painter.closePath();
 			}
-			
 			else if (layout.getSongManager().isPercussionChannel(getMeasureImpl().getTrack().getSong(), getMeasureImpl().getTrack().getChannelId())) {
-				
-				// drum gets special treatment according to value.
-				int renderType = TGDrumMap.getCurrentDrumMap().getRenderType(getValue());
-				
-				if ((renderType & TGDrumMap.KIND_CYMBAL) != 0) {
-					// paint as X
-					painter.initPath(UIPainter.PATH_DRAW);
-					TGNotePainter.paintXNote(painter, x, y1 + 1, layout.getScoreLineSpacing() - 2);
-					painter.closePath();
-				}
-				
-				if ((renderType & TGDrumMap.KIND_NOTE) != 0) {
-					// paint normally
-					boolean fill = (getVoice().getDuration().getValue() >= TGDuration.QUARTER);
-					float noteX = (fill ? (x - (0.60f * (scale / 10f))) : x);
-					float noteY = (fill ? (y1 + (0.60f * (scale / 10f))) : (y1 + (1f * (scale / 10f))));
-					float noteScale = (fill ? ((layout.getScoreLineSpacing() - ((scale / 10f) * 1f) )) : ((layout.getScoreLineSpacing() - ((scale / 10f) * 2f) )));
-					
-					painter.setLineWidth(layout.getLineWidth(1));
-					painter.initPath((fill ? UIPainter.PATH_FILL : UIPainter.PATH_DRAW));
-					TGNotePainter.paintNote(painter, noteX, noteY, noteScale);
-					painter.closePath();
-				}
-				
-				if ((renderType & TGDrumMap.KIND_SLANTED_DIAMOND) != 0) {
-					// paint as harmonic
-					boolean fill = (getVoice().getDuration().getValue() >= TGDuration.QUARTER);
-					painter.setLineWidth(layout.getLineWidth(1));
-					painter.initPath((fill ? (UIPainter.PATH_FILL | UIPainter.PATH_DRAW) : UIPainter.PATH_DRAW));
-					TGNotePainter.paintHarmonic(painter, x, y1 + (1f * (scale / 10f)), (layout.getScoreLineSpacing() - ((scale / 10f) * 2f)));
-					painter.closePath();
-				} 
-				
-				if ((renderType & TGDrumMap.KIND_TRIANGLE) != 0) {
-					// paint as triangle thing
-					boolean fill = (getVoice().getDuration().getValue() >= TGDuration.QUARTER);
-					painter.setLineWidth(layout.getLineWidth(1));
-					painter.initPath((fill ? (UIPainter.PATH_FILL | UIPainter.PATH_DRAW) : UIPainter.PATH_DRAW));
-					TGNotePainter.paintTriangle(painter, x, y1 + (1f * (scale / 10f)), (layout.getScoreLineSpacing() - ((scale / 10f) * 2f)));
-					painter.closePath();
-				}
-				
-				if ((renderType & TGDrumMap.KIND_EFFECT_CYMBAL) != 0) {
-					// paint as weird X thing
-					painter.initPath(UIPainter.PATH_DRAW);
-					TGNotePainter.paintEffectCymbalXNote(painter, x, y1 + 1, layout.getScoreLineSpacing() - 2);
-					painter.closePath();
-				}
-				
-				// other render artifacts
-				// draw open hi-hat circle above note
-				if ((renderType & TGDrumMap.KIND_OPEN) != 0) {
-					painter.initPath(UIPainter.PATH_DRAW);
-					painter.addCircle(x + (0.58f * scale), y1 + (-0.66f * scale), 0.5f * scale);
-					painter.closePath();
-				}
-				// draw plus above note
-				if ((renderType & TGDrumMap.KIND_CLOSED) != 0) {
-					// override to not draw this for closed hi-hat if previous note had it
-					if (this.getValue() == 42) {
-						List<TGNote> lastNotes = null;
-						
-						// get note from last beat if it exists
-						if (this.getBeatImpl().getPreviousBeat() != null) {
-							lastNotes = this.getBeatImpl().getPreviousBeat().getVoice(this.getVoiceImpl().getIndex()).getNotes();
-						// if last beat doesn't exist, try getting it from last measure
-						} else if (getMeasureImpl().getTrackImpl().getMeasure(getMeasureImpl().getNumber() - 2) != null) {
-							TGMeasure lastMeasure = getMeasureImpl().getTrackImpl().getMeasure(getMeasureImpl().getNumber() - 2);
-							
-							// get last beat of measure
-							if (lastMeasure.getBeat(lastMeasure.countBeats() - 1) != null) {
-								// potential issue: if voice used for hi-hat is different in the measures
-								lastNotes = lastMeasure.getBeat(lastMeasure.countBeats() - 1).getVoice(this.getVoiceImpl().getIndex()).getNotes();
-							}
-						} 					
-						
-						boolean lastNoteAlsoClosedHiHat = false;
-						
-						// make sure not null
-						if (lastNotes != null) {
-							// loop through last notes until closed hi-hat is found (if it is found)
-							for (TGNote note : lastNotes) {
-								if (note.getValue() == 42) {
-									lastNoteAlsoClosedHiHat = true;
-									break;
-								}
-							}
-						}
-						
-						// if last note wasn't closed hi-hat, draw cross
-						if (!lastNoteAlsoClosedHiHat) {
-							painter.initPath(UIPainter.PATH_DRAW);
-							painter.moveTo(x + (0.25f * scale), y1 + (-0.66f * scale));
-							painter.lineTo(x + (0.91f * scale), y1 + (-0.66f * scale));
-							painter.moveTo(x + (0.58f * scale), y1 + (-0.33f * scale));
-							painter.lineTo(x + (0.58f * scale), y1 + (-0.99f * scale));
-							painter.closePath();
-						}
-						// for all other cases, don't do this (e.g. muted triangle)
-					} else {
-						painter.initPath(UIPainter.PATH_DRAW);
-						painter.moveTo(x + (0.25f * scale), y1 + (-0.66f * scale));
-						painter.lineTo(x + (0.91f * scale), y1 + (-0.66f * scale));
-						painter.moveTo(x + (0.58f * scale), y1 + (-0.33f * scale));
-						painter.lineTo(x + (0.58f * scale), y1 + (-0.99f * scale));
-						painter.closePath();
-					}
-				}
-				// draw circle around note
-				if ((renderType & TGDrumMap.KIND_CIRCLE_AROUND) != 0) {
-					painter.initPath(UIPainter.PATH_DRAW);
-					painter.addCircle(x + (0.5f * scale), y1 + (0.425f * scale), scale * 1.6f);
-					painter.closePath();
-				}
-			}else{
+				this.paintPercussionScoreNote(layout, painter, x, y1);
+			}
+			else {
 				boolean fill = (getVoice().getDuration().getValue() >= TGDuration.QUARTER);
 				float noteX = (fill ? (x - (0.60f * (scale / 10f))) : x);
 				float noteY = (fill ? (y1 + (0.60f * (scale / 10f))) : (y1 + (1f * (scale / 10f))));
@@ -501,9 +384,9 @@ public class TGNoteImpl extends TGNote {
 						painter.initPath();
 						float tpY = fromY;
 						if((direction == TGBeatGroup.DIRECTION_UP)){
-							tpY += (getVoiceImpl().getBeatGroup().getMaxNote().getScorePosY() - layout.getScoreLineSpacing() - (4f * layoutScale));
+							tpY += (getVoiceImpl().getBeatGroup().getMinNote().getScorePosY() - layout.getScoreLineSpacing() - (4f * layoutScale));
 						}else{
-							tpY += (getVoiceImpl().getBeatGroup().getMinNote().getScorePosY() + layout.getScoreLineSpacing() + (4f * layoutScale));
+							tpY += (getVoiceImpl().getBeatGroup().getMaxNote().getScorePosY() + layout.getScoreLineSpacing() + (4f * layoutScale));
 						}
 						for(int i = TGDuration.EIGHTH;i <= getEffect().getTremoloPicking().getDuration().getValue(); i += i){
 							painter.moveTo(x + xMove - (3f * layoutScale), tpY + (1f * layoutScale));
@@ -519,7 +402,7 @@ public class TGNoteImpl extends TGNote {
 					if (getEffect().isStaccato()) {
 						float size = (3f * layoutScale);
 						float sX = (x + (scoreNoteWidth / 2));
-						float sY = (fromY + getVoiceImpl().getBeatGroup().getMinNote().getScorePosY() + layout.getScoreLineSpacing()) + (2f * layoutScale);
+						float sY = (fromY + getVoiceImpl().getBeatGroup().getMaxNote().getScorePosY() + layout.getScoreLineSpacing()) + (2f * layoutScale);
 						layout.setScoreEffectStyle(painter);
 						painter.setLineWidth(layout.getLineWidth(1));
 						painter.initPath(UIPainter.PATH_FILL);
@@ -533,7 +416,7 @@ public class TGNoteImpl extends TGNote {
 						painter.setLineWidth(layout.getLineWidth(2));
 						painter.initPath();
 						float tpX = ((x + (scoreNoteWidth / 2)));
-						float tpY = (fromY + (getVoiceImpl().getBeatGroup().getMaxNote().getScorePosY() - layout.getScoreLineSpacing() - (4f  * layoutScale)));
+						float tpY = (fromY + (getVoiceImpl().getBeatGroup().getMinNote().getScorePosY() - layout.getScoreLineSpacing() - (4f  * layoutScale)));
 						for(int i = TGDuration.EIGHTH;i <= getEffect().getTremoloPicking().getDuration().getValue(); i += i){
 							painter.moveTo(tpX - (3f * layoutScale), tpY + (1f * layoutScale));
 							painter.lineTo(tpX + (4f * layoutScale),tpY - (1f * layoutScale));
@@ -545,6 +428,133 @@ public class TGNoteImpl extends TGNote {
 				}
 			}
 		}
+	}
+	
+	private void paintPercussionScoreNote(TGLayout layout,UIPainter painter, float fromX, float fromY) {
+		float scale = layout.getScoreLineSpacing();
+		
+		// drum gets special treatment according to value.
+		int renderType = layout.getDrumMap().getRenderType(getValue());
+		
+		if ((renderType & TGDrumMap.KIND_CYMBAL) != 0) {
+			// paint as X
+			painter.setLineWidth(layout.getLineWidth(1));
+			painter.initPath(UIPainter.PATH_DRAW);
+			TGNotePainter.paintXNote(painter, fromX, fromY + 1, layout.getScoreLineSpacing() - 2);
+			painter.closePath();
+		}
+		
+		if ((renderType & TGDrumMap.KIND_NOTE) != 0) {
+			// paint normally
+			boolean fill = (getVoice().getDuration().getValue() >= TGDuration.QUARTER);
+			float noteX = (fill ? (fromX - (0.60f * (scale / 10f))) : fromX);
+			float noteY = (fill ? (fromY + (0.60f * (scale / 10f))) : (fromY + (1f * (scale / 10f))));
+			float noteScale = (fill ? ((layout.getScoreLineSpacing() - ((scale / 10f) * 1f) )) : ((layout.getScoreLineSpacing() - ((scale / 10f) * 2f) )));
+			
+			painter.setLineWidth(layout.getLineWidth(1));
+			painter.initPath((fill ? UIPainter.PATH_FILL : UIPainter.PATH_DRAW));
+			TGNotePainter.paintNote(painter, noteX, noteY, noteScale);
+			painter.closePath();
+		}
+		
+		if ((renderType & TGDrumMap.KIND_SLANTED_DIAMOND) != 0) {
+			// paint as harmonic
+			boolean fill = (getVoice().getDuration().getValue() >= TGDuration.QUARTER);
+			painter.setLineWidth(layout.getLineWidth(1));
+			painter.initPath((fill ? (UIPainter.PATH_FILL | UIPainter.PATH_DRAW) : UIPainter.PATH_DRAW));
+			TGNotePainter.paintHarmonic(painter, fromX, fromY + (1f * (scale / 10f)), (layout.getScoreLineSpacing() - ((scale / 10f) * 2f)));
+			painter.closePath();
+		} 
+		
+		if ((renderType & TGDrumMap.KIND_TRIANGLE) != 0) {
+			// paint as triangle thing
+			boolean fill = (getVoice().getDuration().getValue() >= TGDuration.QUARTER);
+			painter.setLineWidth(layout.getLineWidth(1));
+			painter.initPath((fill ? (UIPainter.PATH_FILL | UIPainter.PATH_DRAW) : UIPainter.PATH_DRAW));
+			TGNotePainter.paintTriangle(painter, fromX, fromY + (1f * (scale / 10f)), (layout.getScoreLineSpacing() - ((scale / 10f) * 2f)));
+			painter.closePath();
+		}
+		
+		if ((renderType & TGDrumMap.KIND_EFFECT_CYMBAL) != 0) {
+			// paint as weird X thing
+			painter.setLineWidth(layout.getLineWidth(1));
+			painter.initPath(UIPainter.PATH_DRAW);
+			TGNotePainter.paintEffectCymbalXNote(painter, fromX, fromY + 1, layout.getScoreLineSpacing() - 2);
+			painter.closePath();
+		}
+		
+		// other render artifacts
+		// draw open hi-hat circle above note
+		if ((renderType & TGDrumMap.KIND_OPEN) != 0) {
+			painter.setLineWidth(layout.getLineWidth(1));
+			painter.initPath(UIPainter.PATH_DRAW);
+			painter.addCircle(fromX + (0.58f * scale), fromY + (-0.66f * scale), 0.5f * scale);
+			painter.closePath();
+		}
+		// draw plus above note
+		if ((renderType & TGDrumMap.KIND_CLOSED) != 0) {
+			// override to not draw this for closed hi-hat if previous note had it
+			if (this.getValue() == 42) {
+				// if last note wasn't closed hi-hat, draw cross
+				if (!this.isLastBeatContainingValue(layout, this.getValue())) {
+					painter.setLineWidth(layout.getLineWidth(1));
+					painter.initPath(UIPainter.PATH_DRAW);
+					painter.moveTo(fromX + (0.25f * scale), fromY + (-0.66f * scale));
+					painter.lineTo(fromX + (0.91f * scale), fromY + (-0.66f * scale));
+					painter.moveTo(fromX + (0.58f * scale), fromY + (-0.33f * scale));
+					painter.lineTo(fromX + (0.58f * scale), fromY + (-0.99f * scale));
+					painter.closePath();
+				}
+				// for all other cases, don't do this (e.g. muted triangle)
+			} else {
+				painter.setLineWidth(layout.getLineWidth(1));
+				painter.initPath(UIPainter.PATH_DRAW);
+				painter.moveTo(fromX + (0.25f * scale), fromY + (-0.66f * scale));
+				painter.lineTo(fromX + (0.91f * scale), fromY + (-0.66f * scale));
+				painter.moveTo(fromX + (0.58f * scale), fromY + (-0.33f * scale));
+				painter.lineTo(fromX + (0.58f * scale), fromY + (-0.99f * scale));
+				painter.closePath();
+			}
+		}
+		// draw circle around note
+		if ((renderType & TGDrumMap.KIND_CIRCLE_AROUND) != 0) {
+			painter.setLineWidth(layout.getLineWidth(1));
+			painter.initPath(UIPainter.PATH_DRAW);
+			painter.addCircle(fromX + (0.5f * scale), fromY + (0.425f * scale), scale * 1.6f);
+			painter.closePath();
+		}
+	}
+	
+	private boolean isLastBeatContainingValue(TGLayout layout, int value) {
+		TGBeat lastBeat = this.getBeatImpl().getPreviousBeat();
+		
+		// get note from last beat if it exists
+		if (lastBeat == null && this.getMeasureImpl().getPreviousMeasure() != null) {
+			TGMeasure lastMeasure = this.getMeasureImpl().getPreviousMeasure();
+			
+			layout.addUpdateDependant(lastMeasure.getHeader(), this.getMeasureImpl().getHeader());
+			
+			// get last beat of measure
+			if (lastMeasure.countBeats() > 0 ) {
+				lastBeat = lastMeasure.getBeat(lastMeasure.countBeats() - 1);
+			}
+		}
+		
+		// make sure not null
+		if (lastBeat != null) {
+			for(int v = 0 ; v < lastBeat.countVoices(); v ++){
+				TGVoice lastVoice = lastBeat.getVoice(v);
+				
+				// loop through last notes until closed hi-hat is found (if it is found)
+				for(int n = 0 ; n < lastVoice.countNotes(); n ++){
+					TGNoteImpl note = (TGNoteImpl) lastVoice.getNote(n);
+					if (note.getRealValue() == value) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 	
 	private TGNoteImpl getNoteForTie() {
@@ -792,7 +802,7 @@ public class TGNoteImpl extends TGNote {
 		painter.moveTo ( x + width, y + (4.0f * scale ) );
 		painter.closePath();
 	}
-
+	
 	private void paintAccentuated(TGLayout layout, UIPainter painter,float fromX,float fromY){
 		float scale = layout.getScale();
 		float x = fromX;

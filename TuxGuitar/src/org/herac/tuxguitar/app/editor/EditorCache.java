@@ -69,7 +69,6 @@ public class EditorCache {
 			this.editBeat =  TuxGuitar.getInstance().getTablatureEditor().getTablature().getCaret().getSelectedBeat();
 			this.editUpdate = false;
 		}
-		
 		return this.editBeat;
 	}
 	

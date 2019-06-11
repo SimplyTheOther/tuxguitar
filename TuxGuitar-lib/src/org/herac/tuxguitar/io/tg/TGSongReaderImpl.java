@@ -19,7 +19,6 @@ import org.herac.tuxguitar.song.models.TGLyric;
 import org.herac.tuxguitar.song.models.TGMarker;
 import org.herac.tuxguitar.song.models.TGMeasure;
 import org.herac.tuxguitar.song.models.TGMeasureHeader;
-import org.herac.tuxguitar.song.models.TGMixerChange;
 import org.herac.tuxguitar.song.models.TGNote;
 import org.herac.tuxguitar.song.models.TGNoteEffect;
 import org.herac.tuxguitar.song.models.TGSong;
@@ -343,11 +342,7 @@ public class TGSongReaderImpl extends TGStream implements TGSongReader {
 		if(((header & BEAT_HAS_TEXT) != 0)){
 			readText(beat);
 		}
-
-		if(((header & BEAT_HAS_MIXER_CHANGE) != 0)){
-			readMixerChange(beat);
-		}
-
+		
 		measure.addBeat(beat);
 	}
 	
@@ -447,53 +442,7 @@ public class TGSongReaderImpl extends TGStream implements TGSongReader {
 		
 		beat.setText(text);
 	}
-
-
-	private void readMixerChange(TGBeat beat) throws IOException {
-		TGMixerChange mixer = this.factory.newMixerChange();
-
-		byte program = readByte();
-		byte bank = readByte();
-		byte volume = readByte();
-		byte balance = readByte();
-		byte reverb = readByte();
-		byte chorus = readByte();
-		byte tremolo = readByte();
-		byte phaser = readByte();
-
-		if(program >= 0){
-			mixer.setProgram((short) program);
-		}
-		if(bank >= 0){
-			mixer.setBank((short) bank);
-		}
-		if(volume >= 0){
-			mixer.setVolume((short) volume);
-		}
-		if(balance >= 0){
-			mixer.setBalance((short) balance);
-		}
-		if(chorus >= 0){
-			mixer.setChorus((short) chorus);
-		}
-		if(reverb >= 0){
-			mixer.setReverb((short) reverb);
-		}
-		if(tremolo >= 0){
-			mixer.setTremolo((short) tremolo);
-		}
-		if(phaser >= 0){
-			mixer.setPhaser((short) phaser);
-		}
-
-		if (mixer.getProgram() != null
-				|| mixer.getVolume() != null || mixer.getBalance() != null
-				|| mixer.getReverb() != null || mixer.getChorus() != null
-				|| mixer.getTremolo() != null) {
-			beat.setMixerChange(mixer);
-		}
-	}
-
+	
 	private TGString readInstrumentString(int number) throws IOException {
 		TGString string = this.factory.newString();
 		

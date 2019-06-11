@@ -11,7 +11,6 @@ import org.herac.tuxguitar.song.models.TGBeat;
 import org.herac.tuxguitar.song.models.TGChord;
 import org.herac.tuxguitar.song.models.TGDuration;
 import org.herac.tuxguitar.song.models.TGMeasure;
-import org.herac.tuxguitar.song.models.TGMixerChange;
 import org.herac.tuxguitar.song.models.TGNote;
 import org.herac.tuxguitar.song.models.TGString;
 import org.herac.tuxguitar.song.models.TGStroke;
@@ -838,7 +837,7 @@ public class TGMeasureManager {
 			addText(beat, text);
 		}
 	}
-
+	
 	/**
 	 * Agrega el texto al compas
 	 */
@@ -878,15 +877,7 @@ public class TGMeasureManager {
 		}
 		return false;
 	}
-
-	public void addMixerChange(TGBeat beat, TGMixerChange mixerChange){
-        beat.setMixerChange(mixerChange);
-	}
-
-	public void removeMixerChange(TGBeat beat) {
-		beat.removeMixerChange();
-	}
-
+	
 	public void cleanMeasure(TGMeasure measure){
 		while( measure.countBeats() > 0){
 			removeBeat( measure.getBeat(0));
